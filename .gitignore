@@ -1,0 +1,21 @@
+# macOS / OS
+.DS_Store
+Thumbs.db
+._*
+
+# Editör
+.vscode/
+.idea/
+*.swp
+*.sublime-*
+
+# Bağımlılık / build (ileride eklenirse)
+node_modules/
+vendor/
+
+# Log / geçici
+*.log
+*.tmp
+
+# Dağıtım arşivleri
+*.zip

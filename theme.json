@@ -1,0 +1,85 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 3,
+	"settings": {
+		"appearanceTools": true,
+		"layout": {
+			"contentSize": "820px",
+			"wideSize": "1240px"
+		},
+		"color": {
+			"defaultPalette": false,
+			"palette": [
+				{ "slug": "primary", "color": "#4285F4", "name": "Birincil" },
+				{ "slug": "primary-hover", "color": "#3367D6", "name": "Birincil Hover" },
+				{ "slug": "secondary", "color": "#344955", "name": "İkincil" },
+				{ "slug": "base", "color": "#F4F5FA", "name": "Zemin" },
+				{ "slug": "surface", "color": "#FFFFFF", "name": "Yüzey" },
+				{ "slug": "contrast", "color": "#344955", "name": "Metin" },
+				{ "slug": "muted", "color": "#6E7B82", "name": "Soluk" }
+			]
+		},
+		"typography": {
+			"fluid": true,
+			"fontFamilies": [
+				{
+					"slug": "heading",
+					"name": "Work Sans",
+					"fontFamily": "\"Work Sans\", system-ui, sans-serif",
+					"fontFace": [
+						{
+							"fontFamily": "Work Sans",
+							"fontWeight": "400 700",
+							"fontStyle": "normal",
+							"fontDisplay": "swap",
+							"src": [ "file:./assets/fonts/worksans-latin.woff2" ]
+						}
+					]
+				},
+				{
+					"slug": "body",
+					"name": "Work Sans",
+					"fontFamily": "\"Work Sans\", system-ui, sans-serif",
+					"fontFace": [
+						{
+							"fontFamily": "Work Sans",
+							"fontWeight": "400 700",
+							"fontStyle": "normal",
+							"fontDisplay": "swap",
+							"src": [ "file:./assets/fonts/worksans-latext.woff2" ]
+						}
+					]
+				}
+			],
+			"fontSizes": [
+				{ "slug": "small", "size": "0.875rem", "name": "Küçük" },
+				{ "slug": "medium", "size": "1.0625rem", "name": "Orta" },
+				{ "slug": "large", "size": "1.4rem", "name": "Büyük" },
+				{ "slug": "x-large", "size": "1.95rem", "name": "Çok Büyük" }
+			]
+		},
+		"spacing": {
+			"units": [ "px", "rem", "em", "%", "vw" ]
+		}
+	},
+	"styles": {
+		"color": {
+			"background": "#F4F5FA",
+			"text": "#344955"
+		},
+		"typography": {
+			"fontFamily": "var(--wp--preset--font-family--body)",
+			"lineHeight": "1.7"
+		},
+		"elements": {
+			"link": {
+				"color": { "text": "#4285F4" },
+				":hover": { "color": { "text": "#3367D6" } }
+			},
+			"h1": { "typography": { "fontFamily": "var(--wp--preset--font-family--heading)" } },
+			"h2": { "typography": { "fontFamily": "var(--wp--preset--font-family--heading)" } },
+			"h3": { "typography": { "fontFamily": "var(--wp--preset--font-family--heading)" } },
+			"h4": { "typography": { "fontFamily": "var(--wp--preset--font-family--heading)" } }
+		}
+	}
+}

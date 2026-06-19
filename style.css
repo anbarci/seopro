@@ -1,0 +1,21 @@
+/*
+Theme Name: SeoPro
+Theme URI: https://hazermedya.com/seopro
+Author: Hikmet Anbarcı
+Author URI: https://hazermedya.com
+Description: SEO odaklı, hızlı, iki sütunlu (içerik + sidebar) klasik WordPress blog & haber teması. Koyu arduvaz başlık, mavi aksan ve sağ kenar çubuğu ile gelir; native Customizer, otomatik schema, dahili AMP katmanı, gece modu ve kapsamlı lazy loading içerir. Eklenti bağımlılığı yoktur.
+Version: 1.0.0
+Requires at least: 6.5
+Tested up to: 7.0
+Requires PHP: 8.2
+License: GNU General Public License v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: seopro
+Tags: blog, news, two-columns, custom-logo, custom-menu, featured-images, translation-ready, rtl-language-support, full-width-template, threaded-comments
+
+Bu dosya yalnızca WordPress'in tema başlığını okuması için vardır.
+Asıl stiller derlenebilir biçimde assets/css/ altında tutulur ve enqueue edilir.
+
+Telif hakkı (c) 2026 hazermedya.com - Hikmet Anbarcı. Kod lisansı GPL-2.0-or-later;
+marka adı, tasarım ve "SeoPro" ismi hazermedya.com'a aittir. Haklar ve iletişim: https://hazermedya.com
+*/
