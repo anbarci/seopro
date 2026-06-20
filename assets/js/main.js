@@ -349,7 +349,8 @@
 	function initLazyAds() {
 		var boxes = [].slice.call(document.querySelectorAll('[data-seopro-ad-lazy]'));
 		if (!boxes.length) return;
-		var armed = false, io = null, libLoaded = false;
+		// adsbygoogle.js zaten <head>'de varsa (Auto Ads), lazy reklamlar onu tekrar yüklemesin.
+		var armed = false, io = null, libLoaded = !!document.querySelector('script[src*="adsbygoogle.js"]');
 
 		function activate(box) {
 			if (!box.hasAttribute('data-seopro-ad-lazy')) return;
