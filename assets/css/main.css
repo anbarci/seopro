@@ -243,7 +243,7 @@ body.seopro-nav-open { overflow: hidden; }
 .seopro-main { padding-block: var(--sp-10); min-height: 60vh; }
 .seopro-layout { display: grid; grid-template-columns: minmax(0,1fr); gap: var(--sp-10); align-items: start; }
 .seopro-layout:has(.seopro-sidebar) { grid-template-columns: minmax(0,1fr) var(--sidebar-w); }
-.seopro-mode-blog .seopro-layout--single .seopro-content { max-width: 760px; margin-inline: auto; }
+.seopro-mode-blog .seopro-layout--single .seopro-content { max-width: 800px; margin-inline: auto; }
 .seopro-archive-header { margin-bottom: var(--sp-6); padding-bottom: var(--sp-4); border-bottom: 1px solid var(--border); }
 .seopro-archive-title { font-size: var(--fs-2xl); position: relative; padding-bottom: var(--sp-3); }
 .seopro-archive-title::after { content: ""; position: absolute; left: 0; bottom: 0; width: 44px; height: 3px; background: var(--cat-accent, var(--brand-primary)); border-radius: 3px; }
@@ -280,7 +280,7 @@ body.seopro-nav-open { overflow: hidden; }
 .seopro-card__title a:hover { color: var(--link); }
 .seopro-card__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); font-size: var(--fs-sm); color: var(--text-muted); margin-top: auto; padding-top: var(--sp-1); }
 .seopro-card__meta .seopro-card__author { color: var(--text-secondary); font-weight: 600; }
-.seopro-card__excerpt { color: var(--text-secondary); margin: 0; font-size: var(--fs-sm); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.seopro-card__excerpt { color: var(--text-secondary); margin: 0; font-size: var(--fs-base); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .seopro-card--empty { padding: var(--sp-10); text-align: center; grid-column: 1 / -1; }
 
 /* section title */
@@ -305,7 +305,6 @@ body.seopro-nav-open { overflow: hidden; }
 /* single */
 .seopro-reading-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; background: var(--brand-fill); z-index: 300; transition: width 80ms linear; }
 .seopro-single, .seopro-page { position: relative; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: clamp(var(--sp-5), 3vw, var(--sp-10)); }
-.seopro-mode-blog .seopro-layout--single .seopro-content { max-width: 800px; }
 .seopro-single__cats { margin-bottom: var(--sp-3); font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
 .seopro-single__cats a { color: var(--link); }
 .seopro-single__title { font-size: var(--fs-3xl); margin-bottom: var(--sp-5); }
