@@ -3,3 +3,19 @@
 .seopro-admin .button{margin-right:8px}
 .seopro-admin__status{list-style:disc;padding-left:20px;color:#1d2327}
 .seopro-admin__status li{margin:4px 0}
+
+.seopro-palettes{margin:18px 0 26px}
+.seopro-palettes__title{font-size:14px;margin:0 0 4px}
+.seopro-palettes__hint{max-width:640px;margin:0 0 12px}
+.seopro-palettes__grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;max-width:760px}
+.seopro-pal{display:flex;flex-direction:column;text-align:left;padding:0;background:#fff;border:1px solid #dcdcde;border-radius:8px;overflow:hidden;cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease}
+.seopro-pal:hover{border-color:#8c8f94}
+.seopro-pal:focus-visible{outline:2px solid #2271b1;outline-offset:1px}
+.seopro-pal.is-active{border-color:#2271b1;box-shadow:0 0 0 1px #2271b1}
+.seopro-pal__prev{height:54px;display:flex;flex-direction:column}
+.seopro-pal__bar{height:16px}
+.seopro-pal__body{flex:1;display:flex;align-items:center;gap:8px;padding:0 10px}
+.seopro-pal__dot{width:16px;height:16px;border-radius:50%;flex:none}
+.seopro-pal__line{height:6px;border-radius:3px;flex:1;opacity:.85}
+.seopro-pal__name{font-weight:600;font-size:12px;padding:7px 10px 0;color:#1d2327}
+.seopro-pal__mood{font-size:11px;padding:1px 10px 9px;color:#646970}

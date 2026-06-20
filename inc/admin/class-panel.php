@@ -167,6 +167,7 @@ class Panel {
 			'$(".seopro-color").wpColorPicker();' .
 			'$(".seopro-media-btn").on("click",function(e){e.preventDefault();var b=$(this);var f=wp.media({title:"Görsel seç",button:{text:"Kullan"},multiple:false});f.on("select",function(){var a=f.state().get("selection").first().toJSON();var u=(a.sizes&&a.sizes.thumbnail)?a.sizes.thumbnail.url:a.url;b.siblings("input").val(a.id);b.siblings(".seopro-media-prev").html("<img src=\\""+u+"\\" style=\\"max-width:90px;height:auto;border-radius:6px\\">");});f.open();});' .
 			'$(".seopro-media-clear").on("click",function(e){e.preventDefault();var b=$(this);b.siblings("input").val("");b.siblings(".seopro-media-prev").empty();});' .
+			'$(".seopro-pal").on("click",function(){var b=$(this);$("#seopro_brand_primary").wpColorPicker("color",b.data("primary"));$("#seopro_brand_hover").wpColorPicker("color",b.data("hover"));$("#seopro_brand_secondary").wpColorPicker("color",b.data("secondary"));$("#seopro_bg_base").wpColorPicker("color",b.data("bg"));$("#seopro_text_primary").wpColorPicker("color",b.data("text"));$(".seopro-pal").removeClass("is-active").attr("aria-pressed","false");b.addClass("is-active").attr("aria-pressed","true");});' .
 			'});'
 		);
 	}
@@ -201,6 +202,7 @@ class Panel {
 				<input type="hidden" name="action" value="seopro_save_settings">
 				<input type="hidden" name="tab" value="<?php echo esc_attr( $tab ); ?>">
 				<?php wp_nonce_field( 'seopro_save_settings' ); ?>
+				<?php if ( 'renkler' === $tab ) { $this->palette_picker(); } ?>
 				<table class="form-table" role="presentation"><tbody>
 					<?php
 					foreach ( $groups[ $tab ]['fields'] as $key => $field ) {
@@ -271,6 +273,60 @@ class Panel {
 			echo '<p class="description">' . esc_html( $f['desc'] ) . '</p>';
 		}
 		echo '</td></tr>';
+	}
+
+	/**
+	 * Hazır renk paletleri. Her biri WCAG AA; buton/bağlantı/aksan renkleri
+	 * marka renginden otomatik türetildiği için (DynamicCss) yalnız 5 çekirdek
+	 * renk tanımlanır: [ad, mod, primary, hover, secondary, bg, text].
+	 */
+	private function presets(): array {
+		return [
+			[ 'SeoPro Mavi', __( 'teknoloji · güven', 'seopro' ), '#4285F4', '#3367D6', '#344955', '#F4F5FA', '#344955' ],
+			[ 'Editöryel Bordo', __( 'haber · klasik', 'seopro' ), '#9D2235', '#7A1A29', '#2E2422', '#FBF7F2', '#2E2622' ],
+			[ 'Zümrüt Yeşili', __( 'sağlık · finans', 'seopro' ), '#0E9F6E', '#057A55', '#1F3A34', '#F4F8F6', '#1B302B' ],
+			[ 'Mercan Gün Batımı', __( 'yaşam · enerji', 'seopro' ), '#F2553D', '#D23B24', '#3A2A2A', '#FFF6F2', '#2B211F' ],
+			[ 'İndigo Mor', __( 'yaratıcı · modern', 'seopro' ), '#6366F1', '#4F46E5', '#2A2740', '#F5F5FB', '#2B2A3A' ],
+			[ 'Okyanus Teal', __( '2026 trendi', 'seopro' ), '#0891B2', '#0E7490', '#16343D', '#F1F8FA', '#14323A' ],
+			[ 'Antrasit Minimal', __( 'sade · editöryel', 'seopro' ), '#334155', '#1E293B', '#1E293B', '#FAFAFA', '#1F2937' ],
+			[ 'Amber Altın', __( 'premium · sıcak', 'seopro' ), '#B45309', '#92400E', '#2A211A', '#FBF6EE', '#2C2419' ],
+		];
+	}
+
+	/**
+	 * "Renk Paleti" sekmesinin üstündeki tıkla-uygula palet seçici.
+	 * Tıklayınca (assets() içindeki JS) 5 renk alanını doldurur; kullanıcı kaydeder.
+	 */
+	private function palette_picker(): void {
+		$cur_pri = strtolower( (string) Options::get( 'seopro_brand_primary' ) );
+		$cur_sec = strtolower( (string) Options::get( 'seopro_brand_secondary' ) );
+		$cur_bg  = strtolower( (string) Options::get( 'seopro_bg_base' ) );
+
+		echo '<div class="seopro-palettes">';
+		echo '<h2 class="seopro-palettes__title">' . esc_html__( 'Hazır renk paletleri', 'seopro' ) . '</h2>';
+		echo '<p class="description seopro-palettes__hint">' . esc_html__( 'Bir palete tıkla → aşağıdaki renk alanları otomatik dolar. Sonra "Ayarları Kaydet" de. İstersen ardından renkleri elle de değiştirebilirsin. Buton/bağlantı tonları seçilen renge göre erişilebilir biçimde otomatik üretilir.', 'seopro' ) . '</p>';
+		echo '<div class="seopro-palettes__grid">';
+		foreach ( $this->presets() as $p ) {
+			[ $name, $mood, $pri, $hov, $sec, $bg, $txt ] = $p;
+			$active = ( strtolower( $pri ) === $cur_pri && strtolower( $sec ) === $cur_sec && strtolower( $bg ) === $cur_bg );
+			printf(
+				'<button type="button" class="seopro-pal%1$s" aria-pressed="%2$s" data-primary="%3$s" data-hover="%4$s" data-secondary="%5$s" data-bg="%6$s" data-text="%7$s">'
+				. '<span class="seopro-pal__prev"><span class="seopro-pal__bar" style="background:%5$s"></span>'
+				. '<span class="seopro-pal__body" style="background:%6$s"><span class="seopro-pal__dot" style="background:%3$s"></span>'
+				. '<span class="seopro-pal__line" style="background:%7$s"></span></span></span>'
+				. '<span class="seopro-pal__name">%8$s</span><span class="seopro-pal__mood">%9$s</span></button>',
+				$active ? ' is-active' : '',
+				$active ? 'true' : 'false',
+				esc_attr( $pri ),
+				esc_attr( $hov ),
+				esc_attr( $sec ),
+				esc_attr( $bg ),
+				esc_attr( $txt ),
+				esc_html( $name ),
+				esc_html( $mood )
+			);
+		}
+		echo '</div></div>';
 	}
 
 	public function save(): void {
