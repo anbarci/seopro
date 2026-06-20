@@ -25,8 +25,40 @@ class Optimizer {
 		add_filter( 'the_generator', '__return_empty_string' );
 	}
 
+	/**
+	 * AdSense açık ve en az bir reklam kodu girilmişse, ilk görünür reklamın
+	 * bağlantı gecikmesini kısaltmak için preconnect/dns-prefetch ipuçları ekler.
+	 * AMP isteğinde standart AdSense geçersiz olduğundan atlanır.
+	 */
 	public function resource_hints( array $hints, string $relation ): array {
+		if ( ! $this->ads_present() ) {
+			return $hints;
+		}
+		if ( 'preconnect' === $relation ) {
+			$hints[] = [
+				'href'        => 'https://pagead2.googlesyndication.com',
+				'crossorigin' => 'anonymous',
+			];
+		} elseif ( 'dns-prefetch' === $relation ) {
+			$hints[] = 'https://googleads.g.doubleclick.net';
+			$hints[] = 'https://tpc.googlesyndication.com';
+		}
 		return $hints;
+	}
+
+	/**
+	 * Reklam sistemi açık (AMP değil) ve en az bir bölgede kod var mı?
+	 */
+	private function ads_present(): bool {
+		if ( \SeoPro\Amp\Amp::is_request() || ! \SeoPro\Core\Options::bool( 'seopro_ads_enable' ) ) {
+			return false;
+		}
+		foreach ( [ 'header', 'before', 'in1', 'in2', 'after', 'sidebar', 'mobile' ] as $zone ) {
+			if ( '' !== trim( (string) \SeoPro\Core\Options::get( 'seopro_ad_' . $zone ) ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public function dequeue(): void {
@@ -44,24 +76,40 @@ class Optimizer {
 	}
 
 	public function preload_lcp(): void {
-		if ( ( ! is_front_page() && ! is_home() ) || is_paged() || \SeoPro\Amp\Amp::is_request() ) {
+		if ( \SeoPro\Amp\Amp::is_request() ) {
 			return;
 		}
-		global $wp_query;
-		$first = $wp_query->posts[0] ?? null;
-		if ( ! $first instanceof \WP_Post ) {
+
+		// Tekil yazı/sayfa: öne çıkan görsel hero boyutunda (eager) basılır → LCP odur.
+		// Statik ana sayfa da is_singular() olduğundan buraya düşer ve hero'ya eşlenir
+		// (card boyutu preload edilseydi render edilen hero ile çift indirme olurdu).
+		if ( is_singular() ) {
+			if ( ! has_post_thumbnail() ) {
+				return;
+			}
+			$id   = get_post_thumbnail_id();
+			$size = 'seopro-hero';
+		} elseif ( ( is_home() || is_front_page() ) && ! is_paged() ) {
+			global $wp_query;
+			$first = $wp_query->posts[0] ?? null;
+			if ( ! $first instanceof \WP_Post ) {
+				return;
+			}
+			$id   = get_post_thumbnail_id( $first );
+			$size = 'seopro-card';
+		} else {
 			return;
 		}
-		$id = get_post_thumbnail_id( $first );
+
 		if ( ! $id ) {
 			return;
 		}
-		$src = wp_get_attachment_image_url( $id, 'seopro-card' );
+		$src = wp_get_attachment_image_url( $id, $size );
 		if ( ! $src ) {
 			return;
 		}
-		$srcset = wp_get_attachment_image_srcset( $id, 'seopro-card' );
-		$sizes  = wp_get_attachment_image_sizes( $id, 'seopro-card' );
+		$srcset = wp_get_attachment_image_srcset( $id, $size );
+		$sizes  = wp_get_attachment_image_sizes( $id, $size );
 		printf(
 			'<link rel="preload" as="image" href="%s"%s%s fetchpriority="high">' . "\n",
 			esc_url( $src ),

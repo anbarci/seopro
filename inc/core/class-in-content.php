@@ -39,32 +39,43 @@ class InContent {
 	}
 
 	private function related_html( int $post_id ): string {
-		$cats = wp_get_post_categories( $post_id );
+		// İki ORDER BY RAND() sorgusunun sonucunu yazı bazında cache'le.
+		// Rastgele seçim TTL boyunca sabit kalır (kabul edilebilir) ama her
+		// istekte filesort yapan RAND() sorguları DB'den kalkar.
+		$ids = Cache::remember(
+			'related_' . $post_id,
+			HOUR_IN_SECONDS,
+			static function () use ( $post_id ) {
+				$cats = wp_get_post_categories( $post_id );
 
-		$ids = [];
-		if ( ! empty( $cats ) ) {
-			$ids = get_posts( [
-				'category__in'        => $cats,
-				'post__not_in'        => [ $post_id ],
-				'posts_per_page'      => 3,
-				'orderby'             => 'rand',
-				'fields'              => 'ids',
-				'ignore_sticky_posts' => true,
-				'no_found_rows'       => true,
-			] );
-		}
+				$ids = [];
+				if ( ! empty( $cats ) ) {
+					$ids = get_posts( [
+						'category__in'        => $cats,
+						'post__not_in'        => [ $post_id ],
+						'posts_per_page'      => 3,
+						'orderby'             => 'rand',
+						'fields'              => 'ids',
+						'ignore_sticky_posts' => true,
+						'no_found_rows'       => true,
+					] );
+				}
 
-		if ( count( $ids ) < 3 ) {
-			$fill = get_posts( [
-				'post__not_in'        => array_merge( [ $post_id ], $ids ),
-				'posts_per_page'      => 3 - count( $ids ),
-				'orderby'             => 'rand',
-				'fields'              => 'ids',
-				'ignore_sticky_posts' => true,
-				'no_found_rows'       => true,
-			] );
-			$ids = array_merge( $ids, $fill );
-		}
+				if ( count( $ids ) < 3 ) {
+					$fill = get_posts( [
+						'post__not_in'        => array_merge( [ $post_id ], $ids ),
+						'posts_per_page'      => 3 - count( $ids ),
+						'orderby'             => 'rand',
+						'fields'              => 'ids',
+						'ignore_sticky_posts' => true,
+						'no_found_rows'       => true,
+					] );
+					$ids = array_merge( $ids, $fill );
+				}
+
+				return array_values( array_map( 'intval', $ids ) );
+			}
+		);
 
 		if ( empty( $ids ) ) {
 			return '';

@@ -18,10 +18,30 @@ class PopularPosts extends \WP_Widget {
 		$title = apply_filters( 'widget_title', $instance['title'] ?? __( 'Popüler', 'seopro' ) );
 		$count = ! empty( $instance['count'] ) ? absint( $instance['count'] ) : 5;
 
+		// Pahalı comment_count sıralamasını ID bazında cache'le (her-sayfa yükünü düşürür).
+		$ids = \SeoPro\Core\Cache::remember(
+			'popular_' . $count,
+			15 * MINUTE_IN_SECONDS,
+			static function () use ( $count ) {
+				return get_posts( [
+					'posts_per_page'      => $count,
+					'orderby'             => 'comment_count',
+					'order'               => 'DESC',
+					'ignore_sticky_posts' => true,
+					'no_found_rows'       => true,
+					'fields'              => 'ids',
+				] );
+			}
+		);
+
+		if ( empty( $ids ) ) {
+			return;
+		}
+
 		$query = new \WP_Query( [
+			'post__in'            => $ids,
+			'orderby'             => 'post__in',
 			'posts_per_page'      => $count,
-			'orderby'             => 'comment_count',
-			'order'               => 'DESC',
 			'ignore_sticky_posts' => true,
 			'no_found_rows'       => true,
 		] );

@@ -32,6 +32,7 @@ final class Theme {
 	 */
 	private function boot(): void {
 		( new Setup() )->register();
+		( new Cache() )->register();
 		( new Assets() )->register();
 		( new Mode() )->register();
 		( new DynamicCss() )->register();

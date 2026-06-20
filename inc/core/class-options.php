@@ -42,6 +42,7 @@ class Options {
 			'seopro_flipbar_enable'  => true,
 			'seopro_flipbar_source'  => 'latest',
 			'seopro_flipbar_count'   => 6,
+			'seopro_tabposts_show'   => true,
 			'seopro_tabposts_style'  => 'cards',
 			'seopro_tabposts_popular'=> true,
 			'seopro_tabposts_latest' => true,

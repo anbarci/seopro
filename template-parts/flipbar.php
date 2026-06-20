@@ -37,21 +37,28 @@ if ( 'popular' === $seopro_src ) {
 	$seopro_args['order']   = 'DESC';
 }
 
-$seopro_q = new WP_Query( $seopro_args );
-if ( ! $seopro_q->have_posts() ) {
-	wp_reset_postdata();
-	return;
-}
-
-$seopro_items = [];
-while ( $seopro_q->have_posts() ) {
-	$seopro_q->the_post();
-	$seopro_items[] = [
-		't' => get_the_title(),
-		'u' => get_permalink(),
-	];
-}
-wp_reset_postdata();
+// Başlık+URL listesini kaynağa göre cache'le. popular/random kaynakları her
+// istekte filesort/RAND() yapardı; latest zaten ucuz ama cache sorgu sayısını
+// yine düşürür. Yalnız hafif veri (başlık+permalink) saklanır.
+$seopro_items = \SeoPro\Core\Cache::remember(
+	'flipbar_' . $seopro_src . '_' . $seopro_count,
+	15 * MINUTE_IN_SECONDS,
+	static function () use ( $seopro_args ) {
+		$q     = new WP_Query( $seopro_args );
+		$items = [];
+		if ( $q->have_posts() ) {
+			while ( $q->have_posts() ) {
+				$q->the_post();
+				$items[] = [
+					't' => get_the_title(),
+					'u' => get_permalink(),
+				];
+			}
+		}
+		wp_reset_postdata();
+		return $items;
+	}
+);
 
 if ( empty( $seopro_items ) ) {
 	return;
