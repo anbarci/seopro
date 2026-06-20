@@ -76,9 +76,11 @@ class TabbedPosts extends \WP_Widget {
 	 * Önceden üretilmiş item dizisinden panel markup'ı (sorgu yok).
 	 */
 	private static function panel_html( array $items, string $panel_id, string $tab_id, bool $active, bool $tabbed, bool $show_thumb ): string {
+		// tabpanel rolü SARMALAYICI div'de; liste (<ul>) içeride düz kalır ki
+		// <li> öğeleri liste semantiğini koruyup üst <ul>'da yer alsın (a11y).
 		ob_start();
 		printf(
-			'<ul id="%s" class="seopro-tabposts__panel%s"%s%s>',
+			'<div id="%s" class="seopro-tabposts__panel%s"%s%s><ul class="seopro-tabposts__list">',
 			esc_attr( $panel_id ),
 			$active ? ' is-active' : '',
 			$tabbed ? ' role="tabpanel" aria-labelledby="' . esc_attr( $tab_id ) . '"' : '',
@@ -99,7 +101,7 @@ class TabbedPosts extends \WP_Widget {
 		} else {
 			printf( '<li class="seopro-tabposts__empty">%s</li>', esc_html__( 'Henüz yazı yok.', 'seopro' ) );
 		}
-		echo '</ul>';
+		echo '</ul></div>';
 		return (string) ob_get_clean();
 	}
 
@@ -131,7 +133,8 @@ class TabbedPosts extends \WP_Widget {
 
 		// Görünür sekmelerin verisini tek transient'te cache'le: cache-hit'te
 		// 3 WP_Query + meta/terim/görsel priming (ölçülen ~31 sorgu) yerine ~1.
-		$ckey = 'tabposts_' . implode( '-', array_keys( $tabs ) ) . '_' . ( $show_thumb ? 't' : 'n' ) . '_' . $count;
+		// Önek 'tabposts2': a11y markup değişimi sonrası eski cache'lenmiş HTML servis edilmesin.
+		$ckey = 'tabposts2_' . implode( '-', array_keys( $tabs ) ) . '_' . ( $show_thumb ? 't' : 'n' ) . '_' . $count;
 		$data = Cache::remember(
 			$ckey,
 			15 * MINUTE_IN_SECONDS,
