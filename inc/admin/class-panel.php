@@ -103,6 +103,8 @@ class Panel {
 				'fields' => [
 					'seopro_ads_enable'   => [ 'type' => 'checkbox', 'label' => __( 'Reklamları göster', 'seopro' ), 'hint' => __( 'Tüm reklam bölgeleri için ana anahtar', 'seopro' ) ],
 					'seopro_ads_lazy'     => [ 'type' => 'checkbox', 'label' => __( 'Tembel yükleme (hız)', 'seopro' ), 'hint' => __( 'Reklamlar sayfa yükünü yavaşlatmasın diye ilk etkileşim sonrası ve görünüme yaklaşınca yüklenir (inert <template> + IntersectionObserver). Önerilir.', 'seopro' ) ],
+					'seopro_ads_auto'     => [ 'type' => 'checkbox', 'label' => __( '★ Otomatik reklamlar (Auto Ads)', 'seopro' ), 'hint' => __( 'AMP\'teki gibi: yayıncı ID girin, Google reklamları normal sayfalara OTOMATİK yerleştirsin (aşağıdaki manuel bölge kodlarına gerek kalmaz). AdSense panelinizde "Auto ads" açık olmalı.', 'seopro' ) ],
+					'seopro_ads_client'   => [ 'type' => 'text', 'label' => __( 'AdSense yayıncı ID', 'seopro' ), 'desc' => __( 'ca-pub-XXXXXXXXXXXXXXXX biçiminde (AdSense hesabınızdan). Otomatik reklamlar için gereklidir. Manuel bölge kodları bundan bağımsızdır; ikisi birlikte de kullanılabilir.', 'seopro' ) ],
 					'seopro_ad_in1'       => [ 'type' => 'adcode', 'label' => __( '★ İçerik-içi #1 — girişten sonra (en yüksek gelir)', 'seopro' ), 'desc' => __( 'AdSense\'te en yüksek CTR bölgesi. 300×250 veya responsive önerilir.', 'seopro' ) ],
 					'seopro_ad_in1_after' => [ 'type' => 'number', 'label' => __( '#1: kaçıncı paragraftan sonra', 'seopro' ), 'desc' => __( 'Varsayılan 2.', 'seopro' ) ],
 					'seopro_ad_in2'       => [ 'type' => 'adcode', 'label' => __( 'İçerik-içi #2 — orta', 'seopro' ), 'desc' => __( 'Okuma akışına gömülü. 300×250.', 'seopro' ) ],

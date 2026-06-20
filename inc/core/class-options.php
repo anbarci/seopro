@@ -49,6 +49,8 @@ class Options {
 			'seopro_tabposts_random' => true,
 			'seopro_ads_enable'      => true,
 			'seopro_ads_lazy'        => true,
+			'seopro_ads_auto'        => false,
+			'seopro_ads_client'      => '',
 			'seopro_ad_header'       => '',
 			'seopro_ad_before'       => '',
 			'seopro_ad_in1'          => '',

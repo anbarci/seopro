@@ -29,6 +29,7 @@ class Ads {
 		add_action( 'wp_footer', [ $this, 'mobile_anchor' ] );
 		add_filter( 'the_content', [ $this, 'inject_content' ], 13 );
 		add_shortcode( 'seopro_ad', [ $this, 'shortcode' ] );
+		add_action( 'wp_head', [ $this, 'auto_head' ], 20 );
 
 		// AMP reklamları (amp-auto-ads / amp-ad — standart AdSense JS AMP'te geçersiz).
 		add_action( 'seopro_amp_head', [ $this, 'amp_head' ] );
@@ -113,6 +114,27 @@ class Ads {
 			<?php echo $this->box( 'mobile', $code ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Otomatik reklamlar (AdSense Auto Ads) — normal (AMP olmayan) sayfaların
+	 * <head>'ine yayıncı ID ile loader script'i basar. AMP'teki "otomatik"
+	 * modun normal-sayfa karşılığı: manuel bölge kodu gerekmez, yerleşimi
+	 * Google (AdSense panelindeki Auto ads ayarı) yapar. Manuel bölgelerle
+	 * birlikte kullanılabilir — adsbygoogle.js aynı URL olduğu için tek yüklenir.
+	 */
+	public function auto_head(): void {
+		if ( ! $this->active() || ! Options::bool( 'seopro_ads_auto' ) ) {
+			return;
+		}
+		$client = preg_replace( '/[^a-zA-Z0-9-]/', '', (string) Options::get( 'seopro_ads_client' ) );
+		if ( '' === $client ) {
+			return;
+		}
+		printf(
+			'<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=%s" crossorigin="anonymous"></script>' . "\n",
+			esc_attr( $client )
+		);
 	}
 
 	/**
