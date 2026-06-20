@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SEOPRO_VERSION', '1.0.3' );
+define( 'SEOPRO_VERSION', '1.0.4' );
 define( 'SEOPRO_DIR', get_template_directory() );
 define( 'SEOPRO_URI', get_template_directory_uri() );
 

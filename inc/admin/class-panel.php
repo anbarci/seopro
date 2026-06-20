@@ -300,8 +300,7 @@ class Panel {
 						set_theme_mod( $key, wp_kses_post( wp_unslash( (string) $raw ) ) );
 						break;
 					case 'adcode':
-						$ad = wp_unslash( (string) $raw );
-						set_theme_mod( $key, current_user_can( 'unfiltered_html' ) ? trim( $ad ) : wp_kses_post( $ad ) );
+						set_theme_mod( $key, $this->sanitize_adcode( wp_unslash( (string) $raw ) ) );
 						break;
 					case 'checkbox':
 						set_theme_mod( $key, isset( $_POST[ $key ] ) );
@@ -320,5 +319,51 @@ class Panel {
 
 		wp_safe_redirect( add_query_arg( [ 'page' => self::SLUG, 'tab' => $tab, 'updated' => 1 ], admin_url( 'admin.php' ) ) );
 		exit;
+	}
+
+	/**
+	 * Reklam kodunu güvenle kaydet.
+	 *
+	 * unfiltered_html olan kullanıcıda (tek-site admin) ham saklanır. Olmayanda
+	 * (çok-site alt-yönetici veya unfiltered_html'in kapatıldığı kurulum)
+	 * wp_kses_post AdSense'in <script>'ini silip kodu bozuyordu; bunun yerine
+	 * reklam etiketlerine (script/ins/amp-ad…) izin veren özel allowlist kullan.
+	 * Böylece "AMP eklenebiliyor ama normal reklam eklenemiyor" sorunu çözülür.
+	 */
+	private function sanitize_adcode( string $code ): string {
+		$code = trim( $code );
+		if ( '' === $code || current_user_can( 'unfiltered_html' ) ) {
+			return $code;
+		}
+
+		$base = [ 'class' => true, 'id' => true, 'style' => true ];
+		$data = [
+			'data-ad-client'                => true,
+			'data-ad-slot'                  => true,
+			'data-ad-format'                => true,
+			'data-full-width-responsive'    => true,
+			'data-ad-layout'                => true,
+			'data-ad-layout-key'            => true,
+			'data-ad-region'                => true,
+			'data-matched-content-ui-type'  => true,
+			'data-matched-content-rows-num' => true,
+			'data-matched-content-columns-num' => true,
+			'data-auto-format'              => true,
+		];
+
+		$allowed = [
+			'script'       => [ 'async' => true, 'defer' => true, 'src' => true, 'crossorigin' => true, 'type' => true ],
+			'ins'          => array_merge( $base, $data ),
+			'div'          => array_merge( $base, $data ),
+			'span'         => $base,
+			'a'            => [ 'href' => true, 'target' => true, 'rel' => true, 'class' => true, 'style' => true ],
+			'img'          => [ 'src' => true, 'alt' => true, 'width' => true, 'height' => true, 'style' => true, 'loading' => true, 'class' => true ],
+			'iframe'       => [ 'src' => true, 'width' => true, 'height' => true, 'frameborder' => true, 'scrolling' => true, 'style' => true, 'allow' => true, 'allowfullscreen' => true, 'loading' => true, 'class' => true, 'id' => true ],
+			'amp-ad'       => [ 'width' => true, 'height' => true, 'type' => true, 'layout' => true, 'data-ad-client' => true, 'data-ad-slot' => true, 'data-auto-format' => true, 'data-full-width' => true, 'data-multi-size' => true, 'json' => true, 'rtc-config' => true ],
+			'amp-auto-ads' => [ 'type' => true, 'data-ad-client' => true ],
+			'amp-embed'    => [ 'width' => true, 'height' => true, 'type' => true, 'layout' => true, 'data-ad-client' => true, 'json' => true ],
+		];
+
+		return wp_kses( $code, $allowed );
 	}
 }
