@@ -6,6 +6,9 @@ defined( 'ABSPATH' ) || exit;
 
 class InContent {
 
+	/** "Benzer İçerikler" kutusu bu paragraftan sonra girer (Ads bunu hesaba katar). */
+	public const AFTER_PARAGRAPH = 2;
+
 	public function register(): void {
 		add_filter( 'the_content', [ $this, 'inject' ], 12 );
 	}
@@ -23,7 +26,7 @@ class InContent {
 			return $content;
 		}
 
-		if ( substr_count( $content, '</p>' ) < 2 ) {
+		if ( substr_count( $content, '</p>' ) < self::AFTER_PARAGRAPH ) {
 			return $content . $related;
 		}
 
@@ -32,7 +35,7 @@ class InContent {
 			'#</p>#',
 			static function ( $m ) use ( &$i, $related ) {
 				$i++;
-				return ( 2 === $i ) ? '</p>' . $related : '</p>';
+				return ( self::AFTER_PARAGRAPH === $i ) ? '</p>' . $related : '</p>';
 			},
 			$content
 		);

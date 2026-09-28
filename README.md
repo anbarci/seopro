@@ -52,6 +52,15 @@ seopro/
 - [ ] WPContentBot gömülü entegrasyonu — henüz yok. Panel yalnızca eklenti ayrıca
       kuruluysa bir kısayol düğmesi gösterir.
 
+## SEO kontrolleri (SEO eklentisi yokken)
+- Yazı/sayfa düzenleme ekranında **SEO (SeoPro)** kutusu: SEO başlığı, meta açıklama,
+  noindex, kanonik URL. noindex içerik WordPress site haritasından da çıkar.
+- Panel → Schema & SEO: etiket arşivleri (az yazılıları gizle / hepsi / hiçbiri),
+  tarih ve yazar arşivleri için noindex. Rank Math, Yoast, AIOSEO, SEOPress veya
+  The SEO Framework etkinse bu alanlar devre dışı kalır; kontrol eklentidedir.
+- Reklamlar: her bölgeye sabit alan ayrılır (CLS önlenir), "ekran üstünde tek reklam"
+  seçeneği, içerik reklamları arasında en az 3 paragraf.
+
 ## Customizer ayar grupları
 Site Modu · Renkler · Tipografi · Yerleşim · Anasayfa Blokları · Performans
 (lazyload/AMP/schema) · Sosyal Medya · Footer. Renkler canlı önizlemeyle (postMessage)

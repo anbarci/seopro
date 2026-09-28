@@ -131,7 +131,7 @@ class Manager {
 			'publisher'        => $this->publisher(),
 		];
 
-		$desc = get_the_excerpt();
+		$desc = \SeoPro\Seo\PostMeta::description( $id ) ?: get_the_excerpt();
 		if ( $desc ) {
 			$data['description'] = wp_strip_all_tags( $desc );
 		}

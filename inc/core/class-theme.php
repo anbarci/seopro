@@ -48,6 +48,7 @@ final class Theme {
 		( new \SeoPro\Schema\Manager() )->register();
 		( new \SeoPro\Seo\Head() )->register();
 		( new \SeoPro\Seo\Canonical() )->register();
+		( new \SeoPro\Seo\PostMeta() )->register();
 		( new \SeoPro\Amp\Amp() )->register();
 		( new \SeoPro\Widgets\Registrar() )->register();
 		( new \SeoPro\Members\Members() )->register();

@@ -170,12 +170,21 @@ class Ads {
 		}
 
 		// Paragraf-arası: yüksek N'i önce ekle ki düşük N'in indeksi kaymasın.
-		$n2 = max( 1, (int) Options::get( 'seopro_ad_in2_after' ) );
 		$n1 = max( 1, (int) Options::get( 'seopro_ad_in1_after' ) );
+		$n2 = max( 1, (int) Options::get( 'seopro_ad_in2_after' ) );
+		// in1, "Benzer İçerikler" kutusuyla aynı yere düşerse bir paragraf sonraya
+		// kayar (after_paragraph); aradaki mesafe bu kaymış konumdan ölçülür.
+		$eff1 = ( InContent::AFTER_PARAGRAPH === $n1 ) ? $n1 + 1 : $n1;
+		// İki içerik reklamı arka arkaya gelmesin: aralarında en az 3 paragraf.
+		if ( '' !== $this->code( 'in1' ) && $n2 < $eff1 + 3 ) {
+			$n2 = $eff1 + 3;
+		}
 		$content = $this->after_paragraph( $content, $this->code( 'in2' ), $n2, 'in2' );
 		$content = $this->after_paragraph( $content, $this->code( 'in1' ), $n1, 'in1' );
 
-		$before = $this->box( 'before', $this->code( 'before' ) );
+		// Ekran üstünde tek reklam: header altı reklamı basılıyorsa başlık altını atla.
+		$fold_taken = Options::bool( 'seopro_ads_single_fold' ) && '' !== $this->code( 'header' );
+		$before     = $fold_taken ? '' : $this->box( 'before', $this->code( 'before' ) );
 		$after  = $this->box( 'after', $this->code( 'after' ) );
 
 		return $before . $content . $after;
@@ -190,6 +199,15 @@ class Ads {
 		}
 		$offset = 0;
 		for ( $i = 0; $i < $n; $i++ ) {
+			$pos = strpos( $content, '</p>', $offset );
+			if ( false === $pos ) {
+				return $content;
+			}
+			$offset = $pos + 4;
+		}
+		// Hemen ardından "Benzer İçerikler" kutusu geliyorsa reklamı bir sonraki
+		// paragrafa kaydır: kutu + reklam yan yana okuru boğar, tıklamalar karışır.
+		if ( str_starts_with( ltrim( substr( $content, $offset, 200 ) ), '<aside class="seopro-inline-related' ) ) {
 			$pos = strpos( $content, '</p>', $offset );
 			if ( false === $pos ) {
 				return $content;

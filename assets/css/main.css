@@ -617,11 +617,18 @@ body.single-format-link .seopro-single__title::after { content: " \2197"; color:
 .seopro-ad { margin: var(--sp-6) auto; text-align: center; max-width: 100%; overflow: hidden; }
 .seopro-ad > * { max-width: 100%; }
 .seopro-ad__label { display: block; font-size: 10px; line-height: 1; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: var(--sp-2); }
-/* tembel reklam: yüklenmeden önce CLS'i önlemek için alan rezervi + shimmer */
-.seopro-ad--lazy { min-height: 100px; }
-.seopro-ad--in1.seopro-ad--lazy, .seopro-ad--in2.seopro-ad--lazy, .seopro-ad--sidebar.seopro-ad--lazy { min-height: 260px; }
-.seopro-ad--header.seopro-ad--lazy { min-height: 96px; }
-.seopro-ad-anchor .seopro-ad--lazy { min-height: 52px; }
+/* CLS: reklam yüklenmeden önce yeri ayrılır (tembel yükleme açık da kapalı da).
+   Değerler = etiket (~18px) + yaygın responsive AdSense yüksekliği (250-280). */
+.seopro-ad { min-height: 100px; }
+.seopro-ad--in1, .seopro-ad--in2, .seopro-ad--before, .seopro-ad--after, .seopro-ad--sidebar { min-height: 300px; }
+.seopro-ad--header { min-height: 140px; } /* 2×16px dolgu + etiket + 90px */
+.seopro-ad-anchor .seopro-ad { min-height: 52px; }
+/* Google'ın boş döndürdüğü birimi (data-ad-status="unfilled") gizle. İlk ekrandaki
+   header/başlık-altı hariç: onları kapatmak içeriği yukarı kaydırır (CLS). */
+.seopro-ad--in1:has(ins.adsbygoogle[data-ad-status="unfilled"]),
+.seopro-ad--in2:has(ins.adsbygoogle[data-ad-status="unfilled"]),
+.seopro-ad--after:has(ins.adsbygoogle[data-ad-status="unfilled"]),
+.seopro-ad--sidebar:has(ins.adsbygoogle[data-ad-status="unfilled"]) { display: none; }
 .seopro-ad--lazy:not(.is-loaded) { background: var(--bg-elevated); border-radius: var(--radius-sm); position: relative; overflow: hidden; }
 .seopro-ad--lazy.is-loaded { background: none; }
 @media (prefers-reduced-motion: no-preference) {

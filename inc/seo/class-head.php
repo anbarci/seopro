@@ -2,6 +2,8 @@
 
 namespace SeoPro\Seo;
 
+use SeoPro\Core\Options;
+
 defined( 'ABSPATH' ) || exit;
 
 class Head {
@@ -15,11 +17,40 @@ class Head {
 	}
 
 	public function robots( $robots ) {
-		if ( is_search() || is_404() ) {
+		if ( $this->should_noindex() ) {
+			unset( $robots['index'] );
 			$robots['noindex'] = true;
 			$robots['follow']  = true;
 		}
 		return $robots;
+	}
+
+	/**
+	 * Arama/404, yazıda işaretli noindex ve panelde seçilen arşiv türleri.
+	 * Zayıf/tekrar eden arşivler dizine girip tarama bütçesini ve site kalitesini düşürmesin.
+	 */
+	private function should_noindex(): bool {
+		if ( is_search() || is_404() ) {
+			return true;
+		}
+		if ( is_singular() ) {
+			return (bool) get_post_meta( get_queried_object_id(), PostMeta::NOINDEX, true );
+		}
+		if ( is_date() ) {
+			return Options::bool( 'seopro_noindex_date' );
+		}
+		if ( is_author() ) {
+			return Options::bool( 'seopro_noindex_author' );
+		}
+		if ( is_tag() ) {
+			$mode = (string) Options::get( 'seopro_noindex_tags' );
+			if ( 'noindex' === $mode ) {
+				return true;
+			}
+			$term = get_queried_object();
+			return 'thin' === $mode && $term instanceof \WP_Term && (int) $term->count < PostMeta::thin_min();
+		}
+		return false;
 	}
 
 	private function seo_plugin_active(): bool {
@@ -28,6 +59,10 @@ class Head {
 
 	private function description(): string {
 		if ( is_singular() ) {
+			$custom = PostMeta::description( get_queried_object_id() );
+			if ( '' !== $custom ) {
+				return $custom;
+			}
 			$excerpt = get_the_excerpt();
 			return $excerpt ? wp_strip_all_tags( $excerpt ) : '';
 		}
