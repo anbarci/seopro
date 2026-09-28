@@ -5,7 +5,7 @@ Native Customizer, dual-mode (blog/haber), otomatik schema, dahili AMP katmanı 
 kapsamlı lazy loading hedefiyle geliştirilir.
 
 **Telif & İletişim:** Telif hakkı (c) 2026 [hazermedya.com](https://hazermedya.com) - Hikmet Anbarcı.
-Kod lisansı **GPL-2.0-or-later** (bkz. `license.txt`); "SeoPro" adı, marka ve görsel tasarım
+Kod lisansı **GPL-2.0-or-later** (tam metin: https://www.gnu.org/licenses/gpl-2.0.html); "SeoPro" adı, marka ve görsel tasarım
 hazermedya.com'a aittir. Haklar, lisanslama ve iş birliği için: **https://hazermedya.com**
 
 ## Teknik temel
@@ -19,22 +19,22 @@ hazermedya.com'a aittir. Haklar, lisanslama ve iş birliği için: **https://haz
 seopro/
 ├── style.css            # Tema başlığı (stiller assets/css altında)
 ├── functions.php        # Bootstrap + autoloader
-├── header.php / footer.php / index.php
+├── header.php / footer.php / index.php / single.php / archive.php …
 ├── template-parts/      # Yeniden kullanılabilir parçalar
-├── page-templates/      # Özel sayfa şablonları
-├── templates/
-│   ├── standard/        # Normal render
-│   └── amp/             # AMP render (Faz 7)
+├── page-templates/      # Özel sayfa şablonları (tam genişlik, yazarlar)
 ├── inc/
-│   ├── core/            # Theme, Setup, Assets, Mode
-│   ├── customizer/      # Customizer panelleri (Faz 1)
-│   ├── schema/          # Otomatik schema (Faz 6)
-│   ├── amp/             # AMP katmanı (Faz 7)
-│   ├── lazyload/        # Lazy load motoru (Faz 5)
-│   ├── widgets/ shortcodes/ admin/ optimizer/ license/ mode-switcher/
-├── assets/css|js|fonts|img|icons/
-├── languages/
-└── demos/
+│   ├── core/            # Theme, Setup, Assets, Mode, DynamicCss, Toc…
+│   ├── admin/           # Tema ayar paneli
+│   ├── customizer/      # Customizer panelleri
+│   ├── schema/          # Otomatik schema (JSON-LD)
+│   ├── seo/             # Meta/OG etiketleri + kanonik URL
+│   ├── amp/             # AMP katmanı (endpoint + sanitizer)
+│   ├── lazyload/        # Lazy load / YouTube facade
+│   ├── optimizer/       # Head temizliği, görsel kalitesi, watermark
+│   ├── members/         # Üyelik kısa kodları
+│   ├── security/        # Güvenlik başlıkları
+│   └── widgets/
+└── assets/css|js|fonts/
 ```
 
 ## Geliştirme yol haritası
@@ -48,21 +48,17 @@ seopro/
 - [x] **Faz 7** — Dahili AMP katmanı (`/amp/` endpoint + sanitizer)
 - [x] **Faz 8** — Widget'lar + özel sayfa şablonları
 - [x] **Faz 9** — Üye sistemi (shortcode) + güvenlik başlıkları + a11y
-- [x] **Faz 10** — Tema admin paneli + native **WPContentBot** entegrasyonu
-
-## WPContentBot entegrasyonu
-İçerik botu eklentisi temaya `inc/content-bot/` altında **gömülüdür** (ayrı eklenti
-gerektirmez). `SeoPro\Core\ContentBot` sınıfı WPCB sabitlerini tanımlar, kendi
-autoloader'ını kaydeder ve motoru `after_setup_theme`'de başlatır; tablolar
-`after_switch_theme`'de kurulur. Bot admin sayfaları, üst seviye **SeoPro** tema
-menüsünün altına submenu olarak yerleşir (`seopro_contentbot_parent` filtresiyle
-değiştirilebilir; `false` dönerse eski bağımsız menüye düşer).
+- [x] **Faz 10** — Tema admin paneli
+- [ ] WPContentBot gömülü entegrasyonu — henüz yok. Panel yalnızca eklenti ayrıca
+      kuruluysa bir kısayol düğmesi gösterir.
 
 ## Customizer ayar grupları
 Site Modu · Renkler · Tipografi · Yerleşim · Anasayfa Blokları · Performans
 (lazyload/AMP/schema) · Sosyal Medya · Footer. Renkler canlı önizlemeyle (postMessage)
 CSS değişkenlerine bağlanır (`inc/core/class-dynamic-css.php`).
 
-## Çalışma alanı
-`screenshot.png` (1200×900) henüz eklenmedi. Demo içerik import dosyaları `demos/`
-altına eklenecek.
+## Eksikler
+- Çeviri dosyaları (`languages/`) ve demo içerik yok.
+- AB/AEA, Birleşik Krallık ve İsviçre ziyaretçilerine AdSense reklamı göstermek için Google
+  sertifikalı bir CMP (çerez/rıza aracı) gerekir (16 Ocak 2024'ten beri). Tema bunu içermez;
+  ayrı bir CMP eklentisi kullanılmalı.

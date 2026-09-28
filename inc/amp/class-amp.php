@@ -60,9 +60,9 @@ class Amp {
 
 	private function render(): void {
 		the_post();
-		$full      = Sanitizer::content( apply_filters( 'the_content', get_the_content() ) );
-		$content   = $this->truncate_html( $full );
-		$truncated = ( $content !== $full );
+		// Google, AMP ile kanonik sayfanın içeriğinin eşleşmesini ister; eşleşmeyen
+		// AMP sayfası yok sayılır. Bu yüzden içerik kısaltılmadan tam basılır.
+		$content = Sanitizer::content( apply_filters( 'the_content', get_the_content() ) );
 		$css     = file_exists( SEOPRO_DIR . '/assets/css/amp.css' )
 			? file_get_contents( SEOPRO_DIR . '/assets/css/amp.css' )
 			: '';
@@ -78,6 +78,12 @@ class Amp {
 	<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 	<title><?php echo esc_html( wp_get_document_title() ); ?></title>
 	<link rel="canonical" href="<?php echo esc_url( get_permalink() ); ?>">
+	<?php
+	// Google, AMP ve kanonik sayfada aynı yapısal verinin olmasını ister.
+	if ( Options::bool( 'seopro_schema_enable' ) && ! \SeoPro\Core\Helpers::seo_plugin_active() ) {
+		( new \SeoPro\Schema\Manager() )->output();
+	}
+	?>
 	<script async src="https://cdn.ampproject.org/v0.js"></script>
 	<?php if ( false !== strpos( $content, 'amp-youtube' ) ) : ?>
 		<script async custom-element="amp-youtube" src="https://cdn.ampproject.org/v0/amp-youtube-0.1.js"></script>
@@ -96,29 +102,12 @@ class Amp {
 			<?php if ( $thumb ) : ?>
 				<amp-img src="<?php echo esc_url( $thumb ); ?>" width="1280" height="720" layout="responsive" alt="<?php echo esc_attr( get_the_title() ); ?>"></amp-img>
 			<?php endif; ?>
-			<?php do_action( 'seopro_amp_content_top' ); ?><div class="amp-content<?php echo $truncated ? ' amp-content--cut' : ''; ?>"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div><?php do_action( 'seopro_amp_content_bottom' ); ?>
-			<?php if ( $truncated ) : ?>
-				<div class="amp-readmore">
-					<p class="amp-readmore__hint"><?php esc_html_e( 'Yazının tamamını okumak için devam edin', 'seopro' ); ?></p>
-					<a class="amp-readmore__btn" href="<?php echo esc_url( get_permalink() ); ?>"><?php esc_html_e( 'Yazıyı Oku', 'seopro' ); ?></a>
-				</div>
-			<?php endif; ?>
+			<?php do_action( 'seopro_amp_content_top' ); ?><div class="amp-content"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div><?php do_action( 'seopro_amp_content_bottom' ); ?>
 		</article>
 	</main>
 	<footer class="amp-footer">&copy; <?php echo esc_html( wp_date( 'Y' ) . ' ' . get_bloginfo( 'name' ) ); ?></footer>
 </body>
 </html>
 		<?php
-	}
-
-	private function truncate_html( string $html ): string {
-		$total = substr_count( $html, '</p>' );
-		if ( $total <= 1 ) {
-			return $html;
-		}
-		$keep  = (int) max( 1, ceil( $total / 2 ) );
-		$parts = explode( '</p>', $html );
-		$kept  = array_slice( $parts, 0, $keep );
-		return implode( '</p>', $kept ) . '</p>';
 	}
 }

@@ -40,7 +40,6 @@ final class Theme {
 		( new Toc() )->register();
 		( new Ads() )->register();
 		( new Patterns() )->register();
-		( new Newsletter() )->register();
 
 		( new \SeoPro\Customizer\Customizer() )->register();
 		( new \SeoPro\Lazyload\Lazyload() )->register();

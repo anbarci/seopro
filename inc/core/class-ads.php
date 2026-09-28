@@ -66,6 +66,7 @@ class Ads {
 		if ( '' === $code ) {
 			return '';
 		}
+		$code  = $this->complete_adsense( $code );
 		$cls   = 'seopro-ad seopro-ad--' . $zone;
 		$label = '<span class="seopro-ad__label">' . esc_html__( 'Reklam', 'seopro' ) . '</span>';
 
@@ -77,6 +78,29 @@ class Ads {
 		}
 
 		return '<div class="' . esc_attr( $cls ) . '">' . $label . $code . '</div>';
+	}
+
+	/**
+	 * Script'siz kaydedilmiş AdSense birimini (<ins class="adsbygoogle">) çalışır
+	 * hâle getirir: yükleyici + push() çağrısını tema üretir. Ham HTML yetkisi
+	 * olmayan yöneticilerin kodu bu biçimde saklanır (bkz. Panel::sanitize_adcode()).
+	 * Kod zaten <script> içeriyorsa dokunulmaz.
+	 */
+	private function complete_adsense( string $code ): string {
+		if ( false !== stripos( $code, '<script' ) || ! preg_match( '/<ins\b[^>]*\badsbygoogle\b/i', $code ) ) {
+			return $code;
+		}
+		$client = '';
+		if ( preg_match( '/data-ad-client=["\']([a-zA-Z0-9-]+)["\']/', $code, $m ) ) {
+			$client = $m[1];
+		} else {
+			$client = preg_replace( '/[^a-zA-Z0-9-]/', '', (string) Options::get( 'seopro_ads_client' ) );
+		}
+		$loader = '' !== $client
+			? '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' . esc_attr( $client ) . '" crossorigin="anonymous"></script>'
+			: '';
+		$push   = str_repeat( '<script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>', max( 1, preg_match_all( '/<ins\b[^>]*\badsbygoogle\b/i', $code ) ) );
+		return $loader . $code . $push;
 	}
 
 	/**

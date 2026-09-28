@@ -73,6 +73,14 @@ class Options {
 		];
 	}
 
+	/**
+	 * Seçilebilir yazı tipleri. Yalnızca assets/fonts altında dosyası olanlar
+	 * listelenir; paketlenmemiş bir font seçilirse sessizce sistem fontuna düşülüyordu.
+	 */
+	public static function fonts(): array {
+		return [ 'Work Sans' => 'Work Sans', 'system-ui' => __( 'Sistem', 'seopro' ) ];
+	}
+
 	public static function get( string $key ) {
 		$defaults = self::defaults();
 		$default  = $defaults[ $key ] ?? '';

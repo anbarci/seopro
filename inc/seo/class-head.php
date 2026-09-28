@@ -23,7 +23,7 @@ class Head {
 	}
 
 	private function seo_plugin_active(): bool {
-		return defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) || class_exists( 'SEOPress' );
+		return \SeoPro\Core\Helpers::seo_plugin_active();
 	}
 
 	private function description(): string {
@@ -40,7 +40,7 @@ class Head {
 	public function output(): void {
 		$desc  = mb_substr( trim( $this->description() ), 0, 160 );
 		$title = wp_get_document_title();
-		$url   = is_singular() ? get_permalink() : home_url( add_query_arg( [] ) );
+		$url   = is_singular() ? ( wp_get_canonical_url() ?: get_permalink() ) : \SeoPro\Core\Helpers::current_url();
 		$image     = '';
 		$image_w   = 0;
 		$image_h   = 0;

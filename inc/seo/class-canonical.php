@@ -16,7 +16,7 @@ class Canonical {
 	}
 
 	private function seo_plugin_active(): bool {
-		return defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) || class_exists( 'SEOPress' );
+		return \SeoPro\Core\Helpers::seo_plugin_active();
 	}
 
 	public function filter( $canonical_url, $post ) {

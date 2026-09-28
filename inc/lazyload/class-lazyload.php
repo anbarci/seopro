@@ -28,10 +28,10 @@ class Lazyload {
 		return (string) preg_replace_callback(
 			'/<img\b[^>]*>/i',
 			static function ( $m ) {
+				// loading="lazy" kararını WordPress çekirdeğine bırak: çekirdek ilk
+				// (ekranda görünen) görselleri bilerek lazy yapmaz, LCP görseline
+				// fetchpriority="high" ekler. Tema her görsele lazy basınca LCP gecikiyordu.
 				$tag = $m[0];
-				if ( ! preg_match( '/\bloading=/i', $tag ) ) {
-					$tag = str_replace( '<img', '<img loading="lazy"', $tag );
-				}
 				if ( ! preg_match( '/\bdecoding=/i', $tag ) ) {
 					$tag = str_replace( '<img', '<img decoding="async"', $tag );
 				}
