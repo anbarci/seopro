@@ -47,12 +47,22 @@ class Amp {
 		if ( self::is_request() || ! is_singular( 'post' ) ) {
 			return;
 		}
+		// noindex işaretli yazının AMP sürümünü de duyurma.
+		if ( get_post_meta( get_queried_object_id(), \SeoPro\Seo\PostMeta::NOINDEX, true ) ) {
+			return;
+		}
 		printf( '<link rel="amphtml" href="%s" />' . "\n", esc_url( trailingslashit( get_permalink() ) . 'amp/' ) );
 	}
 
 	public function maybe_render(): void {
 		if ( ! self::is_request() || ! is_singular( 'post' ) ) {
 			return;
+		}
+		// Aynı AMP sayfası hem /amp/ hem ?amp=1 adresinde açılmasın (kopya URL).
+		// Güzel kalıcı bağlantılar açıksa ?amp isteğini /amp/ adresine taşı.
+		if ( isset( $_GET[ self::QV ] ) && get_option( 'permalink_structure' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			wp_safe_redirect( trailingslashit( get_permalink() ) . 'amp/', 301 );
+			exit;
 		}
 		$this->render();
 		exit;
@@ -78,6 +88,13 @@ class Amp {
 	<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 	<title><?php echo esc_html( wp_get_document_title() ); ?></title>
 	<link rel="canonical" href="<?php echo esc_url( get_permalink() ); ?>">
+	<?php $amp_desc = mb_substr( trim( (string) ( \SeoPro\Seo\PostMeta::description( get_the_ID() ) ?: wp_strip_all_tags( get_the_excerpt() ) ) ), 0, 160 ); ?>
+	<?php if ( '' !== $amp_desc ) : ?>
+	<meta name="description" content="<?php echo esc_attr( $amp_desc ); ?>">
+	<?php endif; ?>
+	<?php if ( get_post_meta( get_the_ID(), \SeoPro\Seo\PostMeta::NOINDEX, true ) ) : ?>
+	<meta name="robots" content="noindex, follow">
+	<?php endif; ?>
 	<?php
 	// Google, AMP ve kanonik sayfada aynı yapısal verinin olmasını ister.
 	if ( Options::bool( 'seopro_schema_enable' ) && ! \SeoPro\Core\Helpers::seo_plugin_active() ) {

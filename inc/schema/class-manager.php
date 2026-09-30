@@ -60,6 +60,10 @@ class Manager {
 	}
 
 	private function breadcrumbs(): array {
+		// Arama ve 404 dizine girmez; bu sayfalarda içerik haritası işaretlemesi gereksiz.
+		if ( is_search() || is_404() ) {
+			return [];
+		}
 		$items = Helpers::breadcrumb_items();
 		if ( count( $items ) < 2 ) {
 			return [];

@@ -3,7 +3,7 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 <div class="seopro-reading-progress" data-seopro-progress aria-hidden="true"></div>
-<article <?php post_class( 'seopro-single' ); ?> itemscope itemtype="https://schema.org/Article">
+<article <?php post_class( 'seopro-single' ); ?>>
 	<?php get_template_part( 'template-parts/breadcrumbs' ); ?>
 
 	<header class="seopro-single__header">
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 			<div class="seopro-single__cats"><?php echo wp_kses_post( $seopro_cats ); ?></div>
 		<?php endif; ?>
 
-		<h1 class="seopro-single__title" itemprop="headline"><?php the_title(); ?></h1>
+		<h1 class="seopro-single__title"><?php the_title(); ?></h1>
 
 		<?php get_template_part( 'template-parts/entry-meta' ); ?>
 	</header>
@@ -26,7 +26,6 @@ defined( 'ABSPATH' ) || exit;
 				'class'         => 'seopro-single__img',
 				'loading'       => 'eager',
 				'fetchpriority' => 'high',
-				'itemprop'      => 'image',
 			] );
 			?>
 		</figure>
@@ -103,7 +102,7 @@ defined( 'ABSPATH' ) || exit;
 		</div>
 	</div>
 
-	<div class="seopro-single__content" itemprop="articleBody">
+	<div class="seopro-single__content">
 		<?php
 		the_content();
 		wp_link_pages( [
