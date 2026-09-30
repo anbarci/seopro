@@ -31,7 +31,7 @@ class Panel {
 	}
 
 	private function groups(): array {
-		$fonts = [ 'Work Sans' => 'Work Sans', 'Inter' => 'Inter', 'Space Grotesk' => 'Space Grotesk', 'Sora' => 'Sora', 'IBM Plex Sans' => 'IBM Plex Sans', 'Roboto' => 'Roboto', 'system-ui' => 'Sistem' ];
+		$fonts = Options::fonts();
 
 		return [
 			'genel'      => [
@@ -76,6 +76,9 @@ class Panel {
 					'seopro_schema_org_logo' => [ 'type' => 'media', 'label' => __( 'Yayıncı logosu', 'seopro' ), 'desc' => __( 'Schema publisher logosu (boşsa özel logo).', 'seopro' ) ],
 					'seopro_og_default'      => [ 'type' => 'media', 'label' => __( 'Varsayılan paylaşım görseli (OG)', 'seopro' ), 'desc' => __( 'Anasayfa, kategori, arşiv ve öne çıkan görseli olmayan yazılar paylaşılınca kullanılır. 1200×630 önerilir. Boşsa site logosuna düşer.', 'seopro' ) ],
 					'seopro_amp_enable'      => [ 'type' => 'checkbox', 'label' => __( 'Dahili AMP katmanı', 'seopro' ), 'hint' => __( '/amp/ sürümü', 'seopro' ) ],
+					'seopro_noindex_tags'    => [ 'type' => 'select', 'label' => __( 'Etiket arşivleri', 'seopro' ), 'choices' => [ 'thin' => __( 'Az yazılı etiketleri gizle (önerilen)', 'seopro' ), 'index' => __( 'Hepsini dizine ekle', 'seopro' ), 'noindex' => __( 'Hiçbirini dizine ekleme', 'seopro' ) ], 'desc' => __( 'Az yazılı: 3\'ten az yazısı olan etiket sayfası noindex olur ve site haritasından çıkar. Tek yazılık etiket sayfaları Google gözünde zayıf içeriktir.', 'seopro' ) ],
+					'seopro_noindex_date'    => [ 'type' => 'checkbox', 'label' => __( 'Tarih arşivleri', 'seopro' ), 'hint' => __( 'Dizine ekleme (noindex) — önerilen', 'seopro' ), 'desc' => __( '/2026/09/ gibi sayfalar anasayfa ve kategorilerin tekrarıdır.', 'seopro' ) ],
+					'seopro_noindex_author'  => [ 'type' => 'checkbox', 'label' => __( 'Yazar arşivleri', 'seopro' ), 'hint' => __( 'Dizine ekleme (noindex)', 'seopro' ), 'desc' => __( 'Tek yazarlı sitelerde yazar sayfası anasayfanın kopyasıdır; işaretleyin. Çok yazarlı haber sitelerinde açık bırakın (yazar sayfaları güven sinyalidir).', 'seopro' ) ],
 				],
 			],
 			'performans' => [
@@ -102,6 +105,7 @@ class Panel {
 				'label'  => __( 'Reklamlar', 'seopro' ),
 				'fields' => [
 					'seopro_ads_enable'   => [ 'type' => 'checkbox', 'label' => __( 'Reklamları göster', 'seopro' ), 'hint' => __( 'Tüm reklam bölgeleri için ana anahtar', 'seopro' ) ],
+					'seopro_ads_single_fold' => [ 'type' => 'checkbox', 'label' => __( 'Ekran üstünde tek reklam', 'seopro' ), 'hint' => __( 'Header altı reklamı varken yazılarda "başlık altı" reklamını gösterme (önerilen)', 'seopro' ), 'desc' => __( 'Google, ilk ekranı reklamla dolu sayfaları sıralamada geriye iter (Page Layout algoritması).', 'seopro' ) ],
 					'seopro_ads_lazy'     => [ 'type' => 'checkbox', 'label' => __( 'Tembel yükleme (hız)', 'seopro' ), 'hint' => __( 'Reklamlar sayfa yükünü yavaşlatmasın diye ilk etkileşim sonrası ve görünüme yaklaşınca yüklenir (inert <template> + IntersectionObserver). Önerilir.', 'seopro' ) ],
 					'seopro_ads_auto'     => [ 'type' => 'checkbox', 'label' => __( '★ Otomatik reklamlar (Auto Ads)', 'seopro' ), 'hint' => __( 'AMP\'teki gibi: yayıncı ID girin, Google reklamları normal sayfalara OTOMATİK yerleştirsin (aşağıdaki manuel bölge kodlarına gerek kalmaz). AdSense panelinizde "Auto ads" açık olmalı.', 'seopro' ) ],
 					'seopro_ads_client'   => [ 'type' => 'text', 'label' => __( 'AdSense yayıncı ID', 'seopro' ), 'desc' => __( 'ca-pub-XXXXXXXXXXXXXXXX biçiminde (AdSense hesabınızdan). Otomatik reklamlar için gereklidir. Manuel bölge kodları bundan bağımsızdır; ikisi birlikte de kullanılabilir.', 'seopro' ) ],
@@ -240,6 +244,9 @@ class Panel {
 				break;
 			case 'adcode':
 				printf( '<textarea class="large-text code" rows="5" spellcheck="false" id="%1$s" name="%1$s" placeholder="%3$s" style="font-family:monospace;font-size:12px">%2$s</textarea>', esc_attr( $key ), esc_textarea( (string) $val ), esc_attr__( 'AdSense / reklam kodunu buraya yapıştırın (<script> dahil)', 'seopro' ) );
+				if ( ! current_user_can( 'unfiltered_html' ) ) {
+					echo '<p class="description">' . esc_html__( 'Hesabınızın ham HTML yetkisi yok: <script> ve <iframe> kaydedilmez. Yalnızca <ins class="adsbygoogle"> birimi saklanır; AdSense yükleyicisini tema otomatik ekler.', 'seopro' ) . '</p>';
+				}
 				break;
 			case 'checkbox':
 				printf( '<label><input type="checkbox" id="%1$s" name="%1$s" value="1" %2$s> %3$s</label>', esc_attr( $key ), checked( (bool) $val, true, false ), esc_html( $f['hint'] ?? '' ) );
@@ -383,10 +390,11 @@ class Panel {
 	 * Reklam kodunu güvenle kaydet.
 	 *
 	 * unfiltered_html olan kullanıcıda (tek-site admin) ham saklanır. Olmayanda
-	 * (çok-site alt-yönetici veya unfiltered_html'in kapatıldığı kurulum)
-	 * wp_kses_post AdSense'in <script>'ini silip kodu bozuyordu; bunun yerine
-	 * reklam etiketlerine (script/ins/amp-ad…) izin veren özel allowlist kullan.
-	 * Böylece "AMP eklenebiliyor ama normal reklam eklenemiyor" sorunu çözülür.
+	 * (çok-site alt-yönetici veya DISALLOW_UNFILTERED_HTML) script/iframe KABUL
+	 * EDİLMEZ: aksi hâlde yetkisi kısıtlanmış bir yönetici keyfi JS kaydedip
+	 * süper-admin oturumunda çalıştırabilir. Yalnızca reklam birimi etiketleri
+	 * (<ins class="adsbygoogle">, amp-ad…) saklanır; AdSense yükleyicisini ve
+	 * push() çağrısını tema kendisi üretir (bkz. Ads::box()).
 	 */
 	private function sanitize_adcode( string $code ): string {
 		$code = trim( $code );
@@ -394,34 +402,31 @@ class Panel {
 			return $code;
 		}
 
-		$base = [ 'class' => true, 'id' => true, 'style' => true ];
+		// Script/style bloklarını içerikleriyle birlikte at (kses yalnız etiketi siler, metni bırakır).
+		$code = (string) preg_replace( '#<(script|style)\b[^>]*>.*?</\1\s*>#is', '', $code );
+
 		$data = [
-			'data-ad-client'                => true,
-			'data-ad-slot'                  => true,
-			'data-ad-format'                => true,
-			'data-full-width-responsive'    => true,
-			'data-ad-layout'                => true,
-			'data-ad-layout-key'            => true,
-			'data-ad-region'                => true,
-			'data-matched-content-ui-type'  => true,
-			'data-matched-content-rows-num' => true,
+			'data-ad-client'                   => true,
+			'data-ad-slot'                     => true,
+			'data-ad-format'                   => true,
+			'data-full-width-responsive'       => true,
+			'data-ad-layout'                   => true,
+			'data-ad-layout-key'               => true,
+			'data-ad-region'                   => true,
+			'data-matched-content-ui-type'     => true,
+			'data-matched-content-rows-num'    => true,
 			'data-matched-content-columns-num' => true,
-			'data-auto-format'              => true,
+			'data-auto-format'                 => true,
 		];
 
 		$allowed = [
-			'script'       => [ 'async' => true, 'defer' => true, 'src' => true, 'crossorigin' => true, 'type' => true ],
-			'ins'          => array_merge( $base, $data ),
-			'div'          => array_merge( $base, $data ),
-			'span'         => $base,
-			'a'            => [ 'href' => true, 'target' => true, 'rel' => true, 'class' => true, 'style' => true ],
-			'img'          => [ 'src' => true, 'alt' => true, 'width' => true, 'height' => true, 'style' => true, 'loading' => true, 'class' => true ],
-			'iframe'       => [ 'src' => true, 'width' => true, 'height' => true, 'frameborder' => true, 'scrolling' => true, 'style' => true, 'allow' => true, 'allowfullscreen' => true, 'loading' => true, 'class' => true, 'id' => true ],
-			'amp-ad'       => [ 'width' => true, 'height' => true, 'type' => true, 'layout' => true, 'data-ad-client' => true, 'data-ad-slot' => true, 'data-auto-format' => true, 'data-full-width' => true, 'data-multi-size' => true, 'json' => true, 'rtc-config' => true ],
+			'ins'          => array_merge( [ 'class' => true, 'style' => true ], $data ),
+			'div'          => [ 'class' => true, 'style' => true ],
+			'span'         => [ 'class' => true ],
+			'amp-ad'       => [ 'width' => true, 'height' => true, 'type' => true, 'layout' => true, 'data-ad-client' => true, 'data-ad-slot' => true, 'data-auto-format' => true, 'data-full-width' => true, 'data-multi-size' => true ],
 			'amp-auto-ads' => [ 'type' => true, 'data-ad-client' => true ],
-			'amp-embed'    => [ 'width' => true, 'height' => true, 'type' => true, 'layout' => true, 'data-ad-client' => true, 'json' => true ],
 		];
 
-		return wp_kses( $code, $allowed );
+		return trim( wp_kses( $code, $allowed ) );
 	}
 }

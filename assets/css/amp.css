@@ -7,11 +7,6 @@ h1{font-size:1.75rem;line-height:1.25;margin:0 0 8px}
 .amp-meta{color:#64748B;font-size:.875rem;margin:0 0 16px}
 .amp-content{font-size:1.0625rem}
 .amp-content img,.amp-content amp-img{margin:16px 0}
-.amp-content--cut{position:relative}
-.amp-content--cut::after{content:"";position:absolute;left:0;right:0;bottom:0;height:170px;background:linear-gradient(rgba(255,255,255,0),#fff);pointer-events:none}
-.amp-readmore{text-align:center;margin:8px 0 36px}
-.amp-readmore__hint{color:#64748B;font-size:.9rem;margin:0 0 14px}
-.amp-readmore__btn{display:inline-block;background:#4285F4;color:#fff;padding:14px 32px;border-radius:999px;font-weight:700;text-decoration:none}
 a{color:#1967D2}
 .seopro-toc--amp{display:block;margin:24px 0;background:#F8F9FB;border:1px solid #E2E8F0;border-radius:8px;padding:14px 18px}
 .seopro-toc__amplabel{display:block;font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:.78rem;color:#475569;margin:0 0 8px}

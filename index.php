@@ -16,6 +16,9 @@ get_header();
 
 			<?php if ( is_home() && ! is_front_page() ) : ?>
 				<h1 class="seopro-archive-title screen-reader-text"><?php single_post_title(); ?></h1>
+			<?php elseif ( is_front_page() ) : ?>
+				<?php // Anasayfanın tek h1'i: site adı (header'daki site adı <p>'dir). ?>
+				<h1 class="screen-reader-text"><?php bloginfo( 'name' ); ?><?php echo get_bloginfo( 'description' ) ? ': ' . esc_html( get_bloginfo( 'description' ) ) : ''; ?></h1>
 			<?php endif; ?>
 
 			<div class="seopro-posts">

@@ -18,7 +18,7 @@ class Manager {
 	}
 
 	private function seo_plugin_active(): bool {
-		return defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) || class_exists( 'SEOPress' );
+		return \SeoPro\Core\Helpers::seo_plugin_active();
 	}
 
 	public function output(): void {
@@ -60,6 +60,10 @@ class Manager {
 	}
 
 	private function breadcrumbs(): array {
+		// Arama ve 404 dizine girmez; bu sayfalarda içerik haritası işaretlemesi gereksiz.
+		if ( is_search() || is_404() ) {
+			return [];
+		}
 		$items = Helpers::breadcrumb_items();
 		if ( count( $items ) < 2 ) {
 			return [];
@@ -109,7 +113,8 @@ class Manager {
 	}
 
 	private function article(): array {
-		$id   = get_the_ID();
+		$id        = get_the_ID();
+		$author_id = (int) get_post_field( 'post_author', $id );
 		$img  = has_post_thumbnail( $id ) ? wp_get_attachment_image_src( get_post_thumbnail_id( $id ), 'seopro-hero' ) : false;
 
 		$data = [
@@ -117,18 +122,20 @@ class Manager {
 			'headline'         => get_the_title(),
 			'datePublished'    => get_the_date( 'c', $id ),
 			'dateModified'     => get_the_modified_date( 'c', $id ),
-			'mainEntityOfPage' => get_permalink( $id ),
-			'wordCount'        => str_word_count( wp_strip_all_tags( get_the_content() ) ),
+			'mainEntityOfPage' => wp_get_canonical_url( $id ) ?: get_permalink( $id ),
+			'wordCount'        => Helpers::word_count( get_the_content( null, false, $id ) ),
 			'inLanguage'       => get_bloginfo( 'language' ),
 			'author'           => [
 				'@type' => 'Person',
-				'name'  => get_the_author(),
-				'url'   => get_author_posts_url( (int) get_post_field( 'post_author', $id ) ),
+				// wp_head'de döngü başlamadığından $authordata boştur; get_the_author()
+				// burada "" döndürür. Yazar adı doğrudan yazının sahibinden okunur.
+				'name'  => get_the_author_meta( 'display_name', $author_id ),
+				'url'   => get_author_posts_url( $author_id ),
 			],
 			'publisher'        => $this->publisher(),
 		];
 
-		$desc = get_the_excerpt();
+		$desc = \SeoPro\Seo\PostMeta::description( $id ) ?: get_the_excerpt();
 		if ( $desc ) {
 			$data['description'] = wp_strip_all_tags( $desc );
 		}
@@ -155,7 +162,7 @@ class Manager {
 		return [
 			'@type' => 'WebPage',
 			'name'  => get_the_title(),
-			'url'   => get_permalink(),
+			'url'   => wp_get_canonical_url() ?: get_permalink(),
 		];
 	}
 
@@ -175,7 +182,7 @@ class Manager {
 		return [
 			'@type' => 'CollectionPage',
 			'name'  => wp_get_document_title(),
-			'url'   => home_url( add_query_arg( [] ) ),
+			'url'   => \SeoPro\Core\Helpers::current_url(),
 		];
 	}
 

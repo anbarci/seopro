@@ -80,20 +80,20 @@ class Customizer {
 			'title' => __( 'Tipografi', 'seopro' ),
 			'panel' => 'seopro_panel',
 		] );
-		$fonts = [ 'Work Sans', 'Inter', 'Space Grotesk', 'Sora', 'IBM Plex Sans', 'Roboto', 'system-ui' ];
+		$fonts = \SeoPro\Core\Options::fonts();
 		foreach ( [
 			'seopro_font_head' => __( 'Başlık fontu', 'seopro' ),
 			'seopro_font_body' => __( 'Metin fontu', 'seopro' ),
 		] as $id => $label ) {
 			$wp->add_setting( $id, [
 				'default'           => $defaults[ $id ],
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => static fn( $v ) => array_key_exists( (string) $v, $fonts ) ? (string) $v : $defaults[ $id ],
 			] );
 			$wp->add_control( $id, [
 				'type'    => 'select',
 				'section' => 'seopro_typography',
 				'label'   => $label,
-				'choices' => array_combine( $fonts, $fonts ),
+				'choices' => $fonts,
 			] );
 		}
 

@@ -7,13 +7,54 @@ defined( 'ABSPATH' ) || exit;
 class Helpers {
 
 	public static function reading_time( string $content ): string {
-		$words   = str_word_count( wp_strip_all_tags( $content ) );
+		$words   = self::word_count( $content );
 		$minutes = max( 1, (int) ceil( $words / 200 ) );
 		return sprintf(
 			/* translators: %d: minutes. */
 			_n( '%d dk okuma', '%d dk okuma', $minutes, 'seopro' ),
 			$minutes
 		);
+	}
+
+	/**
+	 * Unicode-güvenli kelime sayımı. str_word_count() yalnız ASCII harfleri
+	 * tanır; "güzel" kelimesini "g" + "zel" diye bölüp fazladan sayar.
+	 * Kesme işaretli ekler ("Ali'nin") tek kelime sayılır.
+	 */
+	public static function word_count( string $content ): int {
+		// Etiket öncesine boşluk: "</p><p>" arası kelimeler birbirine yapışmasın.
+		$text = trim( wp_strip_all_tags( str_replace( '<', ' <', $content ) ) );
+		if ( '' === $text ) {
+			return 0;
+		}
+		return (int) preg_match_all( "/[\\p{L}\\p{N}]+(?:['’-][\\p{L}\\p{N}]+)*/u", $text );
+	}
+
+	/**
+	 * İstenen sayfanın temiz adresi (sorgu parametreleri olmadan).
+	 *
+	 * home_url( add_query_arg( [] ) ) alt dizin kurulumunda (/blog/) yolu iki kez
+	 * ekliyordu (/blog/blog/...). $wp->request ana adrese göredir, bu yüzden doğru.
+	 */
+	public static function current_url(): string {
+		global $wp;
+		if ( ! get_option( 'permalink_structure' ) ) {
+			$qs = isset( $wp->query_string ) ? (string) $wp->query_string : '';
+			return home_url( '/' . ( '' !== $qs ? '?' . $qs : '' ) );
+		}
+		$path = isset( $wp->request ) ? (string) $wp->request : '';
+		return '' === $path ? home_url( '/' ) : home_url( user_trailingslashit( $path ) );
+	}
+
+	/**
+	 * Meta/OG/schema çıktısını devralan bir SEO eklentisi etkin mi?
+	 */
+	public static function seo_plugin_active(): bool {
+		return defined( 'WPSEO_VERSION' )                 // Yoast SEO.
+			|| defined( 'RANK_MATH_VERSION' )             // Rank Math.
+			|| defined( 'SEOPRESS_VERSION' ) || class_exists( 'SEOPress' )
+			|| defined( 'AIOSEO_VERSION' ) || function_exists( 'aioseo' ) // All in One SEO.
+			|| defined( 'THE_SEO_FRAMEWORK_VERSION' ) || function_exists( 'the_seo_framework' );
 	}
 
 	public static function breadcrumb_items(): array {

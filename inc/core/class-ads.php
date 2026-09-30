@@ -66,6 +66,7 @@ class Ads {
 		if ( '' === $code ) {
 			return '';
 		}
+		$code  = $this->complete_adsense( $code );
 		$cls   = 'seopro-ad seopro-ad--' . $zone;
 		$label = '<span class="seopro-ad__label">' . esc_html__( 'Reklam', 'seopro' ) . '</span>';
 
@@ -77,6 +78,29 @@ class Ads {
 		}
 
 		return '<div class="' . esc_attr( $cls ) . '">' . $label . $code . '</div>';
+	}
+
+	/**
+	 * Script'siz kaydedilmiş AdSense birimini (<ins class="adsbygoogle">) çalışır
+	 * hâle getirir: yükleyici + push() çağrısını tema üretir. Ham HTML yetkisi
+	 * olmayan yöneticilerin kodu bu biçimde saklanır (bkz. Panel::sanitize_adcode()).
+	 * Kod zaten <script> içeriyorsa dokunulmaz.
+	 */
+	private function complete_adsense( string $code ): string {
+		if ( false !== stripos( $code, '<script' ) || ! preg_match( '/<ins\b[^>]*\badsbygoogle\b/i', $code ) ) {
+			return $code;
+		}
+		$client = '';
+		if ( preg_match( '/data-ad-client=["\']([a-zA-Z0-9-]+)["\']/', $code, $m ) ) {
+			$client = $m[1];
+		} else {
+			$client = preg_replace( '/[^a-zA-Z0-9-]/', '', (string) Options::get( 'seopro_ads_client' ) );
+		}
+		$loader = '' !== $client
+			? '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' . esc_attr( $client ) . '" crossorigin="anonymous"></script>'
+			: '';
+		$push   = str_repeat( '<script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>', max( 1, preg_match_all( '/<ins\b[^>]*\badsbygoogle\b/i', $code ) ) );
+		return $loader . $code . $push;
 	}
 
 	/**
@@ -146,12 +170,21 @@ class Ads {
 		}
 
 		// Paragraf-arası: yüksek N'i önce ekle ki düşük N'in indeksi kaymasın.
-		$n2 = max( 1, (int) Options::get( 'seopro_ad_in2_after' ) );
 		$n1 = max( 1, (int) Options::get( 'seopro_ad_in1_after' ) );
+		$n2 = max( 1, (int) Options::get( 'seopro_ad_in2_after' ) );
+		// in1, "Benzer İçerikler" kutusuyla aynı yere düşerse bir paragraf sonraya
+		// kayar (after_paragraph); aradaki mesafe bu kaymış konumdan ölçülür.
+		$eff1 = ( InContent::AFTER_PARAGRAPH === $n1 ) ? $n1 + 1 : $n1;
+		// İki içerik reklamı arka arkaya gelmesin: aralarında en az 3 paragraf.
+		if ( '' !== $this->code( 'in1' ) && $n2 < $eff1 + 3 ) {
+			$n2 = $eff1 + 3;
+		}
 		$content = $this->after_paragraph( $content, $this->code( 'in2' ), $n2, 'in2' );
 		$content = $this->after_paragraph( $content, $this->code( 'in1' ), $n1, 'in1' );
 
-		$before = $this->box( 'before', $this->code( 'before' ) );
+		// Ekran üstünde tek reklam: header altı reklamı basılıyorsa başlık altını atla.
+		$fold_taken = Options::bool( 'seopro_ads_single_fold' ) && '' !== $this->code( 'header' );
+		$before     = $fold_taken ? '' : $this->box( 'before', $this->code( 'before' ) );
 		$after  = $this->box( 'after', $this->code( 'after' ) );
 
 		return $before . $content . $after;
@@ -166,6 +199,15 @@ class Ads {
 		}
 		$offset = 0;
 		for ( $i = 0; $i < $n; $i++ ) {
+			$pos = strpos( $content, '</p>', $offset );
+			if ( false === $pos ) {
+				return $content;
+			}
+			$offset = $pos + 4;
+		}
+		// Hemen ardından "Benzer İçerikler" kutusu geliyorsa reklamı bir sonraki
+		// paragrafa kaydır: kutu + reklam yan yana okuru boğar, tıklamalar karışır.
+		if ( str_starts_with( ltrim( substr( $content, $offset, 200 ) ), '<aside class="seopro-inline-related' ) ) {
 			$pos = strpos( $content, '</p>', $offset );
 			if ( false === $pos ) {
 				return $content;

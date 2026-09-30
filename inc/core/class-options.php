@@ -49,6 +49,7 @@ class Options {
 			'seopro_tabposts_random' => true,
 			'seopro_ads_enable'      => true,
 			'seopro_ads_lazy'        => true,
+			'seopro_ads_single_fold' => true,
 			'seopro_ads_auto'        => false,
 			'seopro_ads_client'      => '',
 			'seopro_ad_header'       => '',
@@ -61,6 +62,9 @@ class Options {
 			'seopro_ad_sidebar'      => '',
 			'seopro_ad_mobile'       => '',
 			'seopro_amp_ads_enable'  => false,
+			'seopro_noindex_tags'    => 'thin',
+			'seopro_noindex_date'    => true,
+			'seopro_noindex_author'  => false,
 			'seopro_amp_ad_client'   => '',
 			'seopro_amp_ad_mode'     => 'auto',
 			'seopro_amp_slot_top'    => '',
@@ -71,6 +75,14 @@ class Options {
 			'seopro_social_youtube'  => '',
 			'seopro_social_linkedin' => '',
 		];
+	}
+
+	/**
+	 * Seçilebilir yazı tipleri. Yalnızca assets/fonts altında dosyası olanlar
+	 * listelenir; paketlenmemiş bir font seçilirse sessizce sistem fontuna düşülüyordu.
+	 */
+	public static function fonts(): array {
+		return [ 'Work Sans' => 'Work Sans', 'system-ui' => __( 'Sistem', 'seopro' ) ];
 	}
 
 	public static function get( string $key ) {

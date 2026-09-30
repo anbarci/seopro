@@ -16,15 +16,12 @@ defined( 'ABSPATH' ) || exit;
 class DynamicCss {
 
 	public function register(): void {
-		add_action( 'wp_head', [ $this, 'output' ], 20 );
 		add_action( 'wp_enqueue_scripts', [ $this, 'inline' ], 20 );
 	}
 
 	public function inline(): void {
 		wp_add_inline_style( 'seopro-main', $this->build() );
 	}
-
-	public function output(): void {}
 
 	private function build(): string {
 		$primary   = self::norm( sanitize_hex_color( (string) Options::get( 'seopro_brand_primary' ) ) ?: '#4285F4' );
@@ -34,8 +31,8 @@ class DynamicCss {
 		$text      = self::norm( sanitize_hex_color( (string) Options::get( 'seopro_text_primary' ) ) ?: '#344955' );
 		$max       = absint( Options::get( 'seopro_container_max' ) ) ?: 1240;
 		$radius    = absint( Options::get( 'seopro_radius' ) );
-		$fontBody  = sanitize_text_field( (string) Options::get( 'seopro_font_body' ) );
-		$fontHead  = sanitize_text_field( (string) Options::get( 'seopro_font_head' ) );
+		$fontBody  = $this->font_stack( (string) Options::get( 'seopro_font_body' ), 'seopro_font_body' );
+		$fontHead  = $this->font_stack( (string) Options::get( 'seopro_font_head' ), 'seopro_font_head' );
 
 		// WCAG AA türetimi (hedef 4.6 → 4.5 eşiğine güvenlik payı).
 		$fill      = self::fill_for_white( $primary );          // beyaz metinli dolgu (buton/rozet)
@@ -62,10 +59,10 @@ class DynamicCss {
 		$css .= '--container-max:' . $max . 'px;';
 		$css .= '--radius:' . $radius . 'px;';
 		if ( $fontBody ) {
-			$css .= '--font-body:"' . $fontBody . '",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;';
+			$css .= '--font-body:' . $fontBody . ',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;';
 		}
 		if ( $fontHead ) {
-			$css .= '--font-head:"' . $fontHead . '",var(--font-body);';
+			$css .= '--font-head:' . $fontHead . ',var(--font-body);';
 		}
 		$css .= '}';
 
@@ -161,5 +158,17 @@ class DynamicCss {
 			}
 		}
 		return $toward;
+	}
+
+	/**
+	 * Seçili fontu CSS değerine çevirir. Paketlenmemiş/eski bir değer varsayılana
+	 * düşer; "system-ui" genel aile anahtar sözcüğü olduğundan tırnaksız yazılır.
+	 */
+	private function font_stack( string $font, string $key ): string {
+		$fonts = Options::fonts();
+		if ( ! array_key_exists( $font, $fonts ) ) {
+			$font = (string) ( Options::defaults()[ $key ] ?? 'system-ui' );
+		}
+		return 'system-ui' === $font ? 'system-ui' : '"' . $font . '"';
 	}
 }

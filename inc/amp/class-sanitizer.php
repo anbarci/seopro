@@ -7,9 +7,12 @@ defined( 'ABSPATH' ) || exit;
 class Sanitizer {
 
 	public static function content( string $html ): string {
-		$html = preg_replace( '#<script\b[^>]*>.*?</script>#is', '', $html );
-		$html = preg_replace( '#\son\w+="[^"]*"#i', '', $html );
-		$html = preg_replace( '#\sstyle="[^"]*"#i', '', $html );
+		// AMP'te geçersiz olan öğeleri içerikleriyle birlikte at.
+		$html = preg_replace( '#<(script|style|noscript|form|object|applet|frameset|video|audio|select|textarea)\b[^>]*>.*?</\1\s*>#is', '', $html );
+		// Kendiliğinden kapanan / tekil geçersiz etiketler.
+		$html = preg_replace( '#<(embed|param|base|frame|input|link|meta)\b[^>]*>#i', '', $html );
+		// Olay işleyicileri ve satır içi stil: çift, tek tırnaklı ve tırnaksız biçimler.
+		$html = preg_replace( '#\s(?:on\w+|style)\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)#i', '', $html );
 
 		$html = preg_replace_callback(
 			'#<iframe\b[^>]*src=["\']([^"\']*(?:youtube\.com|youtu\.be)[^"\']*)["\'][^>]*></iframe>#i',
@@ -21,6 +24,9 @@ class Sanitizer {
 			},
 			$html
 		);
+
+		// YouTube dışındaki iframe'ler AMP'te geçersiz (amp-iframe gerekir); kaldır.
+		$html = preg_replace( '#<iframe\b[^>]*>.*?</iframe\s*>#is', '', $html );
 
 		$html = preg_replace_callback(
 			'#<img\b([^>]*)>#i',

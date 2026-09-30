@@ -40,6 +40,11 @@ class Members {
 		$email    = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
 		$password = (string) ( $_POST['password'] ?? '' );
 
+		if ( '' !== $password && mb_strlen( $password ) < 8 ) {
+			$this->notices[] = __( 'Şifre en az 8 karakter olmalı.', 'seopro' );
+			return;
+		}
+
 		$user_id = register_new_user( $username, $email );
 		if ( is_wp_error( $user_id ) ) {
 			$this->notices[] = $user_id->get_error_message();
@@ -101,7 +106,7 @@ class Members {
 			<?php wp_nonce_field( 'seopro_register', 'seopro_register_nonce' ); ?>
 			<p><label><?php esc_html_e( 'Kullanıcı adı', 'seopro' ); ?><input type="text" name="username" required></label></p>
 			<p><label><?php esc_html_e( 'E-posta', 'seopro' ); ?><input type="email" name="email" required></label></p>
-			<p><label><?php esc_html_e( 'Şifre', 'seopro' ); ?><input type="password" name="password" required></label></p>
+			<p><label><?php esc_html_e( 'Şifre', 'seopro' ); ?><input type="password" name="password" required minlength="8" autocomplete="new-password"></label></p>
 			<p><button type="submit" class="seopro-button"><?php esc_html_e( 'Kayıt ol', 'seopro' ); ?></button></p>
 		</form>
 		<?php
